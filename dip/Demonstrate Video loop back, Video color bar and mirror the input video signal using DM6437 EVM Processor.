@@ -1,0 +1,50 @@
+
+/*
+ * newmain.c
+ *
+ * Created on: 07-Nov-2014
+ * Author: Aravindhan.K
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "stdio.h"
+
+#include "evmdm6437.h"
+
+extern Int16 video_loopback_test();
+
+#define Pixels 207360
+// Pixels = row * columns = 576 * 360 = 207360
+
+Int32 buffer_out[Pixels];
+Int32 buffer_in[Pixels];
+
+#pragma DATA_SECTION(buffer_out,".ddr2")
+#pragma DATA_SECTION(buffer_in,".ddr2")
+
+void main(void)
+{
+    /* Initialize BSL */
+    EVMDM6437_init();
+
+    video_loopback_test();
+
+    while (1)
+    {
+        Int32 i;
+        Uint32 temp;
+
+        i = 0;
+
+        do
+        {
+            temp = buffer_in[i];
+            buffer_out[i] = temp;
+
+            i++;
+
+        }
+        while (i < Pixels);
+    }
+}
