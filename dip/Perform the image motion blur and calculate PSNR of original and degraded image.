@@ -1,0 +1,28 @@
+clc;
+clear;
+close all;
+
+% Matlab program to simulate the motion blur
+% and restoration using Wiener filter
+
+Ioriginal = imread('cameraman.tif');
+
+PSF = fspecial('motion',21,11);
+
+Idouble = im2double(Ioriginal);
+
+blurred = imfilter(Idouble,PSF,'conv','circular');
+
+wnr2 = deconvwnr(blurred,PSF);
+
+subplot(131);
+imshow(Ioriginal);
+title('Pristine Image');
+
+subplot(132);
+imshow(blurred);
+title('Motion Blurred Image');
+
+subplot(133);
+imshow(wnr2);
+title('Deblurred Image with Wiener Filter');
