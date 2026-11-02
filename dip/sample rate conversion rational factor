@@ -1,0 +1,84 @@
+
+clc;
+clear;
+close all;
+
+%% Original Signal
+Fs = 1000;              % Sampling Frequency
+t = 0:1/Fs:1;           % Time Vector
+
+% Input Signal
+x = sin(2*pi*100*t) + 0.5*sin(2*pi*200*t);
+
+%% Rational Sampling Rate Conversion Factors
+L = 3;                  % Interpolation Factor
+M = 2;                  % Decimation Factor
+
+%% STEP-1: UPSAMPLING (Insert L-1 zeros)
+
+N = length(x);
+x_up = zeros(1,N*L);
+index = 1;
+
+for i = 1:N
+    x_up(index) = x(i);
+    index = index + L;
+end
+
+%% STEP-2: LOW PASS FILTER
+
+% Simple Moving Average Filter
+h = ones(1,L)/L;
+x_filt = conv(x_up,h);
+
+%% STEP-3: DOWNSAMPLING
+
+y = x_filt(1:M:end);
+Fs_new = Fs*L/M;
+
+%% FFT OF ORIGINAL SIGNAL
+
+N1 = length(x);
+X = abs(fftshift(fft(x)));
+f1 = linspace(-Fs/2,Fs/2,N1);
+
+%% FFT OF OUTPUT SIGNAL
+
+N2 = length(y);
+Y = abs(fftshift(fft(y)));
+f2 = linspace(-Fs_new/2,Fs_new/2,N2);
+
+%% TIME DOMAIN PLOTS
+
+figure;
+
+subplot(2,2,1)
+plot(t,x,'LineWidth',1.5)
+grid on
+title('Original Signal')
+xlabel('Time (Seconds)')
+ylabel('Amplitude')
+
+subplot(2,2,2)
+t2 = (0:length(y)-1)/Fs_new;
+plot(t2,y,'r','LineWidth',1.5)
+grid on
+title('Sampling Rate Converted Signal')
+xlabel('Time (Seconds)')
+ylabel('Amplitude')
+
+%% FREQUENCY DOMAIN
+
+subplot(2,2,3)
+plot(f1,X,'LineWidth',1.5)
+grid on
+title('Spectrum of Original Signal')
+xlabel('Frequency (Hz)')
+ylabel('|X(f)|')
+
+subplot(2,2,4)
+plot(f2,Y,'r','LineWidth',1.5)
+grid on
+title('Spectrum after Sampling Rate Conversion')
+xlabel('Frequency (Hz)')
+ylabel('|Y(f)|')
