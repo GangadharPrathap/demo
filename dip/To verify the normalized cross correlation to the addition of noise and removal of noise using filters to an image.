@@ -1,0 +1,98 @@
+%-----------------Arthematic filter------------------------
+% Matlab program for arithmetic mean filter
+clc;
+clear all;
+close all;
+
+a1 = imread('cameraman.tif');
+a = im2double(a1);
+
+b = imnoise(a,'gaussian');
+
+[m,n] = size(a);
+
+% Creating an empty array
+c = zeros(m,n);
+
+for i = 2:m-1
+    for j = 2:n-1
+        c(i,j) = 1/9*sum(sum(b(i-1:i+1,j-1:j+1)));
+    end
+end
+
+subplot(311);
+imshow(a);
+title('original image');
+
+subplot(312);
+imshow(b);
+title('image with gaussian noise');
+
+subplot(313);
+imshow(c);
+title('arithmetic mean filter output');
+
+% Calculation of PSNR
+k = psnr(a,c);
+k
+
+%-----------------------order Static filters--------------------
+
+% Order statistic filter implementation
+clc;
+clear;
+close all;
+
+a = imread('cameraman.tif'); % input image
+b = im2double(a);
+
+c = imnoise(b,'salt & pepper'); % salt & pepper noise
+
+psnr_noise = psnr(b,c);
+
+[m,n] = size(b);
+
+d_max = zeros(m,n);
+d_min = zeros(m,n);
+d_median = zeros(m,n);
+
+for i = 2:m-1
+    for j = 2:n-1
+
+        d_max(i,j) = max(max(c(i-1:i+1,j-1:j+1)));
+
+        d_min(i,j) = min(min(c(i-1:i+1,j-1:j+1)));
+
+        d_median(i,j) = median(median(c(i-1:i+1,j-1:j+1)));
+
+    end
+end
+
+subplot(511);
+imshow(b);
+title('original image');
+
+subplot(512);
+imshow(c);
+title('image with salt & pepper noise');
+
+subplot(513);
+imshow(d_max);
+title('max filter output');
+
+subplot(514);
+imshow(d_min);
+title('min filter output');
+
+subplot(515);
+imshow(d_median);
+title('median filter output');
+
+% PSNR calculation
+psnr_median = psnr(b,d_median);
+psnr_max = psnr(b,d_max);
+psnr_min = psnr(b,d_min);
+
+psnr_median
+psnr_max
+psnr_min
