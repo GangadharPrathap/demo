@@ -1,0 +1,44 @@
+% Matlab program for edge computation using Sobel gradient
+
+clc;
+clear all;
+close all;
+
+a1 = imread('rice.png');
+a = im2double(a1);
+
+[m,n] = size(a);
+
+Gx = zeros(m,n);
+Gy = zeros(m,n);
+b = zeros(m,n);
+
+for i = 2:m-1
+    for j = 2:n-1
+
+        Gx(i,j) = (a(i-1,j+1) + 2*a(i,j+1) + a(i+1,j+1))-...
+            (a(i-1,j-1) + 2*a(i,j-1) + a(i+1,j-1));
+
+        Gy(i,j) = (a(i-1,j-1) + 2*a(i-1,j) + a(i-1,j+1))-...
+            (a(i+1,j-1) + 2*a(i+1,j) + a(i+1,j+1));
+
+        b(i,j) = sqrt(Gx(i,j)^2 + Gy(i,j)^2);
+
+    end
+end
+
+subplot(221);
+imshow(a);
+title('Original Image');
+
+subplot(222);
+imshow(Gx);
+title('X-Gradient');
+
+subplot(223);
+imshow(Gy);
+title('Y-Gradient');
+
+subplot(224);
+imshow(b);
+title('Sobel Edge Detected Image');
