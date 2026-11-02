@@ -1,0 +1,76 @@
+
+clc;
+clear;
+close all;
+
+%% Read Audio File
+[x,Fs] = audioread('handel.wav');
+
+% Convert stereo to mono if necessary
+if size(x,2)==2
+    x = mean(x,2);
+end
+
+%% Time Vector
+t = (0:length(x)-1)/Fs;
+
+%% Downsampling Factor
+M = 2;
+
+%% Audio Compression
+compressed = downsample(x,M);
+Fs_new = Fs/M;
+
+%% Reconstruction
+reconstructed = interp(compressed,M);
+
+%% FFT Analysis
+N1 = length(x);
+N2 = length(reconstructed);
+
+X = abs(fftshift(fft(x)));
+Y = abs(fftshift(fft(reconstructed)));
+
+f1 = linspace(-Fs/2,Fs/2,N1);
+f2 = linspace(-Fs/2,Fs/2,N2);
+
+%% Time Domain
+figure;
+
+subplot(2,2,1)
+plot(t,x)
+title('Original Audio Signal')
+xlabel('Time (s)')
+ylabel('Amplitude')
+grid on
+
+subplot(2,2,2)
+plot((0:length(reconstructed)-1)/Fs,reconstructed)
+title('Reconstructed Audio Signal')
+xlabel('Time (s)')
+ylabel('Amplitude')
+grid on
+
+%% Frequency Domain
+subplot(2,2,3)
+plot(f1,X)
+title('Spectrum of Original Audio')
+xlabel('Frequency (Hz)')
+ylabel('|X(f)|')
+grid on
+
+subplot(2,2,4)
+plot(f2,Y)
+title('Spectrum of Reconstructed Audio')
+xlabel('Frequency (Hz)')
+ylabel('|Y(f)|')
+grid on
+
+%% Play Audio
+disp('Original Audio')
+sound(x,Fs)
+
+pause(5)
+
+disp('Reconstructed Audio')
+sound(reconstructed,Fs)
