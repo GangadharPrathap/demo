@@ -1,0 +1,98 @@
+
+clc;
+clear;
+close all;
+
+%% Read Image
+I = imread('cameraman.tif');
+
+% Convert RGB to grayscale if required
+if size(I,3)==3
+    I = uint8(mean(I,3));
+end
+
+I = double(I);
+[m,n] = size(I);
+
+%% Display Original Image
+figure;
+
+subplot(2,2,1);
+imshow(uint8(I));
+title('Original Image');
+
+%% Histogram
+subplot(2,2,2);
+hist(I(:),256);
+title('Histogram');
+xlabel('Gray Level');
+ylabel('Frequency');
+
+%% Histogram Thresholding
+T = 120;               % Change if required
+binary = zeros(m,n);
+
+for i=1:m
+    for j=1:n
+        if I(i,j) >= T
+            binary(i,j)=1;
+        end
+    end
+end
+
+subplot(2,2,3);
+imshow(binary);
+title('Histogram Thresholding');
+
+%% Region Growing
+
+% Seed point (inside cameraman)
+seedx = 90;
+seedy = 70;
+threshold = 25;
+
+region = zeros(m,n);
+queue = zeros(m*n,2);
+
+front = 1;
+rear = 1;
+
+queue(rear,:) = [seedx seedy];
+region(seedx,seedy)=1;
+
+seedIntensity = I(seedx,seedy);
+
+while front<=rear
+
+    x = queue(front,1);
+    y = queue(front,2);
+
+    front = front + 1;
+
+    for dx=-1:1
+        for dy=-1:1
+
+            nx = x + dx;
+            ny = y + dy;
+
+            if nx>=1 && nx<=m && ny>=1 && ny<=n
+
+                if region(nx,ny)==0
+
+                    if abs(I(nx,ny)-seedIntensity)<=threshold
+
+                        region(nx,ny)=1;
+
+                        rear = rear + 1;
+                        queue(rear,:)=[nx ny];
+
+                    end
+                end
+            end
+        end
+    end
+end
+
+subplot(2,2,4);
+imshow(region);
+title('Region Growing');
