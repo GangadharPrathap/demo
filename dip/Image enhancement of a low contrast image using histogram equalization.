@@ -1,0 +1,59 @@
+
+clc;
+close all;
+
+I1 = imread('pout.tif');
+I = double(I1);
+
+[m,n] = size(I);
+
+% Defining all possible image intensities
+L = 0:255;
+
+% Number of pixels of each intensity
+C = zeros(1,256);
+
+for i = 1:m
+    for j = 1:n
+        for k = 1:256
+            if I(i,j) == L(k)
+                C(k) = C(k) + 1;
+            end
+        end
+    end
+end
+
+% Probability of each intensity
+c_prob = C/(m*n);
+
+% Cumulative sum of probabilities
+cc_prob = cumsum(c_prob);
+
+% Converting cumulative intensities into integers
+out_int = zeros(1,256);
+
+for i = 1:256
+    out_int(i) = floor(((cc_prob(i) - min(cc_prob))/(1 - min(cc_prob)))*255 + 0.5);
+end
+
+I_out = zeros(m,n);
+
+for i = 1:m
+    for j = 1:n
+        I_out(i,j) = out_int(I(i,j) + 1);
+    end
+end
+
+subplot(131);
+imshow(uint8(I));
+title('original image');
+
+subplot(132);
+imshow(uint8(I_out));
+title('histogram equalized image');
+
+K1 = histeq(I1);
+
+subplot(133);
+imshow(K1);
+title('matlab generated');
